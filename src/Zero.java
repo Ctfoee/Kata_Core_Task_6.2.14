@@ -85,6 +85,7 @@ public class Zero {
         T getContent();
     }
 
+    // SimpleSendable нужен для обьединения MailMessage и Salary по логике и по наследованию (Consumer в MailService принимает SimpleSendable<T>)
     public static class SimpleSendable<T> implements Sendable<T> {
         private final String from;
         private final String to;
@@ -111,26 +112,29 @@ public class Zero {
             return content;
         }
     }
-    public static class MailMessage<T> extends SimpleSendable<T> {
-        public MailMessage(String from, String to, T content) {
+    public static class MailMessage extends SimpleSendable<String> {
+        public MailMessage(String from, String to, String content) {
             super(from, to, content);
         }
     }
 
-    public static class Salary<T> extends SimpleSendable<T> {
-        public Salary(String from, String to, T content) {
+    public static class Salary extends SimpleSendable<Integer> {
+        public Salary(String from, String to, int content) {
             super(from, to, content);
         }
     }
 
     public static class MailService<T> implements Consumer<SimpleSendable<T>> {
-        private Map<String, List<T>> mailBox = new HashMap<>();
-
+        private Map<String, List<T>> mailBox = new HashMap<>() {
+            @Override
+            public List<T> get(Object key) {
+                return super.getOrDefault(key, new ArrayList<>());
+            }
+        };
         @Override
-        public void accept(SimpleSendable<T> mailMessage) {
-            mailBox.computeIfAbsent(mailMessage.getTo(), k -> new ArrayList<>());
-            if (mailBox.get(mailMessage.getTo()).contains(mailMessage.getContent())) {
-                mailBox.get(mailMessage.getTo()).add(mailMessage.getContent());
+        public void accept(SimpleSendable mailMessage) {
+            if (!mailBox.get(mailMessage.getTo()).contains(mailMessage.getContent())) {
+                mailBox.get(mailMessage.getTo()).add((T) mailMessage.getContent());
             }
         }
 
