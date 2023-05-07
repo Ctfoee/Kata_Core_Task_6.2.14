@@ -125,15 +125,11 @@ public class Zero {
     }
 
     public static class MailService<T> implements Consumer<SimpleSendable<T>> {
-        private Map<String, List<T>> mailBox = new HashMap<>() {
-            @Override
-            public List<T> get(Object key) {
-                return super.getOrDefault(key, new ArrayList<>());
-            }
-        };
+        private Map<String, List<T>> mailBox = new HashMap<>();
         @Override
         public void accept(SimpleSendable<T> mailMessage) {
-            mailBox.get(mailMessage.getTo()).add(mailMessage.getContent());
+            mailBox.computeIfAbsent(mailMessage.getTo(), k -> new ArrayList<>())
+            .add(mailMessage.getContent());
         }
 
         public Map<String, List<T>> getMailBox() {
