@@ -132,10 +132,8 @@ public class Zero {
             }
         };
         @Override
-        public void accept(SimpleSendable mailMessage) {
-            if (!mailBox.get(mailMessage.getTo()).contains(mailMessage.getContent())) {
-                mailBox.get(mailMessage.getTo()).add((T) mailMessage.getContent());
-            }
+        public void accept(SimpleSendable<T> mailMessage) {
+            mailBox.get(mailMessage.getTo()).add(mailMessage.getContent());
         }
 
         public Map<String, List<T>> getMailBox() {
